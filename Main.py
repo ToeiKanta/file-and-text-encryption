@@ -6,6 +6,7 @@ from base64 import b16decode,b64decode
 import random
 import string
 from Signature import Signature
+from Crypto.Hash import SHA256
 
 signature = Signature()
 
@@ -44,16 +45,18 @@ def modeText():
   data = file_.read()
   # encrypt text
   cipher = encrypt(data.encode("utf-8"))
-  print(cipher)
   b16 = json.loads(cipher)
   cipher = b16['ciphertext']
-  sig = signature.sign(cipher.encode())
+  hashed_msg = signature.hash(cipher.encode())
+  sig = signature.sign(hashed_msg)
   # write to file
   file_encrypt = open("result/text_enctrypted.txt","wb")
   file_encrypt.write(b"=====     original text     ===== \n")
   file_encrypt.write(data.encode("utf-8"))
-  file_encrypt.write(b"\n\n=====     cipher text     ===== \n")
+  file_encrypt.write(b"\n\n=====      AES cipher text      ===== \n")
   file_encrypt.write(b64encode(cipher.encode("utf-8")))
+  file_encrypt.write(b"\n\n=====     hash SHA256 cipher text     ===== \n")
+  file_encrypt.write(hashed_msg.hexdigest().encode())
   file_encrypt.write(b"\n\n=====  digital signature  ===== \n")
   file_encrypt.write(b64encode(sig))
 

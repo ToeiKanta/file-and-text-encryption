@@ -17,19 +17,18 @@ class Signature:
     file_out = open("temp/public_key.txt", "wb")
     file_out.write(self.public_key)
 
-  def sign(self,message):
-    # message = 'To be signed'
-    # key = RSA.import_key(open('private_key.der').read())
-    key = RSA.import_key(self.private_key)
-    h = SHA256.new(message)
-    signature = pkcs1_15.new(key).sign(h)
+  def hash(self,message):
+    return SHA256.new(message)
+
+  def sign(self,hashed_msg):
+    key = RSA.import_key(open('temp/private_key.txt').read())
+    signature = pkcs1_15.new(key).sign(hashed_msg)
     return signature
 
-  def verify(self,message,signature):
+  def verify(self,hashed_msg,signature):
     key = RSA.import_key(open('temp/public_key.txt').read())
-    h = SHA256.new(message)
     try:
-        pkcs1_15.new(key).verify(h, signature)
+        pkcs1_15.new(key).verify(hashed_msg, signature)
         print("The signature is valid.")
     except (ValueError, TypeError):
       print("The signature is not valid.")
