@@ -1,8 +1,8 @@
 import json
-from base64 import b16encode,b64encode
+from base64 import b64encode
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
-from base64 import b16decode,b64decode
+from base64 import b64decode
 import random
 import string
 from Signature import Signature
@@ -19,9 +19,9 @@ def encrypt(data):
   key = get_random_bytes(32)
   cipher = AES.new(key, AES.MODE_OFB)
   ct_bytes = cipher.encrypt(data)
-  iv = b16encode(cipher.iv).decode('utf-8')
-  ct = b16encode(ct_bytes).decode('utf-8')
-  k =  b16encode(key).decode('utf-8')
+  iv = b64encode(cipher.iv).decode('utf-8')
+  ct = b64encode(ct_bytes).decode('utf-8')
+  k =  b64encode(key).decode('utf-8')
   result = json.dumps({'iv':iv, 'ciphertext':ct, 'key':k})
   print(result)
   return result
@@ -30,9 +30,9 @@ def decrypt(json_input):
   # shared key
   try:
       b16 = json.loads(json_input)
-      iv = b16decode(b16['iv'])
-      ct = b16decode(b16['ciphertext'])
-      key = b16decode(b16['key'])
+      iv = b64decode(b16['iv'])
+      ct = b64decode(b16['ciphertext'])
+      key = b64decode(b16['key'])
       cipher = AES.new(key, AES.MODE_OFB, iv=iv)
       pt = cipher.decrypt(ct)
       print("The message was: ", pt)
@@ -41,6 +41,8 @@ def decrypt(json_input):
 
 def modeText():
   path = input("Enter your .txt file path : ")
+  fileNameArr = path.split('/')
+  fileName = fileNameArr[len(fileNameArr)-1]
   file_ = open(path,"r")
   data = file_.read()
   # encrypt text
@@ -50,7 +52,7 @@ def modeText():
   hashed_msg = signature.hash(cipher.encode())
   sig = signature.sign(hashed_msg)
   # write to file
-  file_encrypt = open("result/text_encrypted.txt","wb")
+  file_encrypt = open("result/"+fileName,"wb")
   file_encrypt.write(b"=====     original text     ===== \n")
   file_encrypt.write(data.encode("utf-8"))
   file_encrypt.write(b"\n\n=====      AES cipher text      ===== \n")
@@ -70,10 +72,9 @@ def modeFile():
   cipher = encrypt(data)
   b16 = json.loads(cipher)
   cipher = b16['ciphertext']
-
   # write to file
   file_encrypt = open("result/"+fileName+".encrypted","wb")
-  file_encrypt.write(b64encode(cipher.encode("utf-8")))
+  file_encrypt.write(cipher.encode("utf-8"))
 
 def text_sig_verify(cipher,sig):
   signature.verify(cipher,sig)
