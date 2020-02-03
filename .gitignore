@@ -1,5 +1,4 @@
 keys/
-!**/temp.txt
 result/
-!**/temp.txt
+!temp.txt
 __pycache__
