@@ -29,10 +29,10 @@ def encrypt(data):
 def decrypt(json_input):
   # shared key
   try:
-      b16 = json.loads(json_input)
-      iv = b64decode(b16['iv'])
-      ct = b64decode(b16['ciphertext'])
-      key = b64decode(b16['key'])
+      b64 = json.loads(json_input)
+      iv = b64decode(b64['iv'])
+      ct = b64decode(b64['ciphertext'])
+      key = b64decode(b64['key'])
       cipher = AES.new(key, AES.MODE_OFB, iv=iv)
       pt = cipher.decrypt(ct)
       # print("The message was: ", pt)
@@ -42,66 +42,115 @@ def decrypt(json_input):
 
 def modeText():
   while True:
+    print("""
+
+███████╗███╗   ██╗ ██████╗ ██████╗ ██████╗ ███████╗██████╗ 
+██╔════╝████╗  ██║██╔════╝██╔═══██╗██╔══██╗██╔════╝██╔══██╗
+█████╗  ██╔██╗ ██║██║     ██║   ██║██║  ██║█████╗  ██████╔╝
+██╔══╝  ██║╚██╗██║██║     ██║   ██║██║  ██║██╔══╝  ██╔══██╗
+███████╗██║ ╚████║╚██████╗╚██████╔╝██████╔╝███████╗██║  ██║
+╚══════╝╚═╝  ╚═══╝ ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝
+                                                          
+  """)
     print("Entering MODE Text")
     print("========================")
-    print("ENTER 1 to Encrypt")
-    print("ENTER 2 to Decrypt")
+    print("ENTER 1 to Encrypt text file")
+    print("ENTER 2 to Decrypt text file")
     print("ENTER 3 back to menu")
     print("========================")
     mode = input("What do you want ? : ")
     # Encryption
     if(mode == "1"):
-      path = input("Enter your .txt file path : ")
-      fileNameArr = path.split('/')
-      fileName = fileNameArr[len(fileNameArr)-1]
-      file_ = open(path,"r")
-      data = file_.read()
-      # encrypt text
-      cipher = encrypt(data.encode("utf-8"))
-      b16 = json.loads(cipher)
-      cipher = b16['ciphertext']
-      hashed_msg = signature.hash(cipher.encode())
-      sig = signature.sign(hashed_msg)
-      # write to file
-      file_encrypt = open("encrypted/"+fileName,"wb")
-      file_encrypt.write(b"=====     original text     ===== \n")
-      file_encrypt.write(data.encode("utf-8"))
-      file_encrypt.write(b"\n\n=====      AES cipher text      ===== \n")
-      file_encrypt.write(b64encode(cipher.encode("utf-8")))
-      file_encrypt.write(b"\n\n=====     hash SHA256 cipher text     ===== \n")
-      file_encrypt.write(hashed_msg.hexdigest().encode())
-      file_encrypt.write(b"\n\n=====  digital signature  ===== \n")
-      file_encrypt.write(b64encode(sig))
-      
-      # decrypt
-      file_encrypt.write(b"\n\n=====  decrypted text ===== \n")
-      file_encrypt.write(decrypt(encrypt(data.encode("utf-8"))))
-      file_encrypt.close()
+      encrypt_text()
     # Decryption
     elif(mode == "2"):
       pass
     elif(mode == "3"):
       break
 
+def encrypt_text():
+  path = input("Enter your .txt file path : ")
+  fileNameArr = path.split('/')
+  fileName = fileNameArr[len(fileNameArr)-1]
+  file_ = open(path,"r")
+  data = file_.read()
+  # encrypt text
+  cipher = encrypt(data.encode("utf-8"))
+  b64 = json.loads(cipher)
+  cipher = b64['ciphertext']
+  hashed_msg = signature.hash(cipher.encode())
+  sig = signature.sign(hashed_msg)
+  # write to file
+  file_encrypt = open("encrypted/"+fileName,"wb")
+  file_encrypt.write(b"=====     original text     ===== \n")
+  file_encrypt.write(data.encode("utf-8"))
+  file_encrypt.write(b"\n\n=====      AES cipher text      ===== \n")
+  file_encrypt.write(b64encode(cipher.encode("utf-8")))
+  file_encrypt.write(b"\n\n=====     hash SHA256 cipher text     ===== \n")
+  file_encrypt.write(hashed_msg.hexdigest().encode())
+  file_encrypt.write(b"\n\n=====  digital signature  ===== \n")
+  file_encrypt.write(b64encode(sig))
+  
+  # decrypt
+  file_encrypt.write(b"\n\n=====  decrypted text ===== \n")
+  file_encrypt.write(decrypt(encrypt(data.encode("utf-8"))))
+  file_encrypt.close()
+  show_success()
+  
 def modeFile():
-  print("Entering Mode File")
+  while True:
+    print("Entering Mode File")
+    print("========================")
+    print("ENTER 1 to Encrypt entire file")
+    print("ENTER 2 to Decrypt entire file")
+    print("ENTER 3 back to menu")
+    print("========================")
+    mode = input("What do you want ? : ")
+    if(mode == "1"):
+      encrypt_file()
+      break
+    elif(mode == "2"):
+      decrypt_file()
+      break
+    elif(mode == "3"):
+      break
+
+def encrypt_file():
   path = input("Enter your file path : ")
   fileNameArr = path.split('/')
   fileName = fileNameArr[len(fileNameArr)-1]
   file_ = open(path,"rb")
   data = file_.read()
   cipher = encrypt(data)
-  b16 = json.loads(cipher)
-  cipher = b16['ciphertext']
+  b64 = json.loads(cipher)
+  # cipher = b64['ciphertext']
   # write to file
   file_encrypt = open("encrypted/"+fileName,"wb")
   file_encrypt.write(cipher.encode("utf-8"))
   file_encrypt.close()
+  show_success()
 
+def show_success():
+  print("=========================")
+  print("=========================")
+  print("=========================")
+  print("========SUCCESS==========")
+  print("=========================")
+  print("=========================")
+  print("=========================")
+
+def decrypt_file():
   # decrypt
+  path = input("Enter your file path : ")
+  fileNameArr = path.split('/')
+  fileName = fileNameArr[len(fileNameArr)-1]
+  file_ = open(path,"rb")
+  data = file_.read()
   file_decrypt = open("decrypted/"+fileName,"wb")
-  file_decrypt.write(decrypt(encrypt(data)))
+  decrypted = decrypt(data.decode('utf-8'))
+  file_decrypt.write(decrypted)
   file_decrypt.close()
+  show_success()
 
 def text_sig_verify(cipher,sig):
   signature.verify(cipher,sig)
@@ -110,8 +159,9 @@ def text_sig_verify(cipher,sig):
 def main():
   while True:
     print("============================================")
-    print("MODE 1 = Encrypt text inside file")
-    print("MODE 2 = Encrypt other file (entire file)")
+    print("SELECT TYPE")
+    print("MODE 1 = Text inside file")
+    print("MODE 2 = Other file (entire file)")
     print("MODE 3 = Close program !!")
     print("============================================")
     mode = input("Select your MODE : ")
@@ -121,5 +171,16 @@ def main():
       modeFile()
     elif(mode == "3"):
       break
+
 if __name__ == "__main__":
+  print("""
+
+███████╗███╗   ██╗ ██████╗ ██████╗ ██████╗ ███████╗██████╗ 
+██╔════╝████╗  ██║██╔════╝██╔═══██╗██╔══██╗██╔════╝██╔══██╗
+█████╗  ██╔██╗ ██║██║     ██║   ██║██║  ██║█████╗  ██████╔╝
+██╔══╝  ██║╚██╗██║██║     ██║   ██║██║  ██║██╔══╝  ██╔══██╗
+███████╗██║ ╚████║╚██████╗╚██████╔╝██████╔╝███████╗██║  ██║
+╚══════╝╚═╝  ╚═══╝ ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝
+                                                          
+  """)
   main()
