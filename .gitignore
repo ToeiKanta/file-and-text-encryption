@@ -1,3 +1,5 @@
 keys/
+!**/temp.txt
 result/
+!**/temp.txt
 __pycache__
