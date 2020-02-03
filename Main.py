@@ -50,7 +50,7 @@ def modeText():
   hashed_msg = signature.hash(cipher.encode())
   sig = signature.sign(hashed_msg)
   # write to file
-  file_encrypt = open("result/text_enctrypted.txt","wb")
+  file_encrypt = open("result/text_encrypted.txt","wb")
   file_encrypt.write(b"=====     original text     ===== \n")
   file_encrypt.write(data.encode("utf-8"))
   file_encrypt.write(b"\n\n=====      AES cipher text      ===== \n")
@@ -60,13 +60,25 @@ def modeText():
   file_encrypt.write(b"\n\n=====  digital signature  ===== \n")
   file_encrypt.write(b64encode(sig))
 
+def modeFile():
+  print("Entering Mode File")
+  path = input("Enter your file path : ")
+  fileNameArr = path.split('/')
+  fileName = fileNameArr[len(fileNameArr)-1]
+  file_ = open(path,"rb")
+  data = file_.read()
+  cipher = encrypt(data)
+  b16 = json.loads(cipher)
+  cipher = b16['ciphertext']
+
+  # write to file
+  file_encrypt = open("result/"+fileName+".encrypted","wb")
+  file_encrypt.write(b64encode(cipher.encode("utf-8")))
+
 def text_sig_verify(cipher,sig):
   signature.verify(cipher,sig)
   decrypt(cipher)
-
-def modeFile():
-  pass
-
+  
 def main():
   while True:
     print("============================================")
@@ -78,7 +90,7 @@ def main():
       modeText()
       break
     elif(mode == "2"):
-      fileText()
+      modeFile()
       break
 if __name__ == "__main__":
   main()
