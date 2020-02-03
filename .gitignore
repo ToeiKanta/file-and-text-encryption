@@ -1,5 +1,5 @@
 keys/*
 encrypted/*
 decrypted/*
-!temp.txt
+!.temp
 __pycache__
