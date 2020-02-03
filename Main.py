@@ -52,7 +52,7 @@ def modeText():
   hashed_msg = signature.hash(cipher.encode())
   sig = signature.sign(hashed_msg)
   # write to file
-  file_encrypt = open("result/"+fileName,"wb")
+  file_encrypt = open("encrypted/"+fileName,"wb")
   file_encrypt.write(b"=====     original text     ===== \n")
   file_encrypt.write(data.encode("utf-8"))
   file_encrypt.write(b"\n\n=====      AES cipher text      ===== \n")
@@ -73,7 +73,7 @@ def modeFile():
   b16 = json.loads(cipher)
   cipher = b16['ciphertext']
   # write to file
-  file_encrypt = open("result/"+fileName+".encrypted","wb")
+  file_encrypt = open("encrypted/"+fileName+".encrypted","wb")
   file_encrypt.write(cipher.encode("utf-8"))
 
 def text_sig_verify(cipher,sig):

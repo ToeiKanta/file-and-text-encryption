@@ -1,4 +1,4 @@
 keys/*
-result/*
+encrypted/*
 !temp.txt
 __pycache__
